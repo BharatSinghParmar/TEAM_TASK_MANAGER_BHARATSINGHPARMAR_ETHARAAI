@@ -23,7 +23,12 @@ app.get('/', (req, res) => {
 
 // Routes
 import authRoutes from './routes/authRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+
 app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 

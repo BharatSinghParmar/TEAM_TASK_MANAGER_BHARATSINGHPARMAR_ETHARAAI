@@ -4,6 +4,8 @@ import { Toaster } from 'react-hot-toast';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Projects from './pages/Projects';
+import ProjectDetails from './pages/ProjectDetails';
 
 // A simple dashboard placeholder for now
 const Dashboard = () => {
@@ -51,6 +53,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/projects" 
+          element={
+            <ProtectedRoute>
+              <Projects />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/projects/:id" 
+          element={
+            <ProtectedRoute>
+              <ProjectDetails />
             </ProtectedRoute>
           } 
         />
