@@ -12,20 +12,26 @@ const TaskCard = ({ task, onStatusChange, onEdit, onDelete }) => {
   
   const canChangeStatus = isAdmin || isAssignee;
 
-  const getStatusColor = (status) => {
+  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Completed';
+
+  const getStatusColor = (status, isOverdue) => {
+    if (isOverdue) return 'bg-red-100 text-red-800 border-red-200';
     switch (status) {
       case 'Completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'In Progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'In Progress': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Completed';
-
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex flex-col h-full hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{task.title}</h3>
+    <div className={`bg-white rounded-lg shadow-sm border ${isOverdue ? 'border-red-300' : 'border-gray-200'} p-5 flex flex-col h-full hover:shadow-md transition-shadow relative overflow-hidden`}>
+      {isOverdue && (
+        <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg shadow-sm">
+          ⚠ Overdue
+        </div>
+      )}
+      <div className="flex justify-between items-start mb-3 mt-1">
+        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 pr-12">{task.title}</h3>
         {isAdmin && (
           <div className="flex gap-1 flex-shrink-0 ml-2">
             <button 
@@ -63,7 +69,7 @@ const TaskCard = ({ task, onStatusChange, onEdit, onDelete }) => {
             <span className="truncate max-w-[120px]">{task.assignedTo?.name || 'Unassigned'}</span>
           </div>
           
-          <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+          <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -76,14 +82,14 @@ const TaskCard = ({ task, onStatusChange, onEdit, onDelete }) => {
             <select
               value={task.status}
               onChange={(e) => onStatusChange(task._id, e.target.value)}
-              className={`w-full text-sm font-medium border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 ${getStatusColor(task.status)}`}
+              className={`w-full text-sm font-medium border rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 ${getStatusColor(task.status, isOverdue)} transition-colors`}
             >
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
               <option value="Completed">Completed</option>
             </select>
           ) : (
-            <div className={`text-center text-sm font-medium border rounded px-2 py-1.5 ${getStatusColor(task.status)}`}>
+            <div className={`text-center text-sm font-medium border rounded px-2 py-1.5 ${getStatusColor(task.status, isOverdue)}`}>
               {task.status}
             </div>
           )}

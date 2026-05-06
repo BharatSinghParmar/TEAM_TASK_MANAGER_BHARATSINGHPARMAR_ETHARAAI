@@ -13,7 +13,10 @@ export const getDashboardMetrics = async (req, res) => {
     let pendingTasks = 0;
     let inProgressTasks = 0;
     let completedTasks = 0;
+    let overdueTasks = 0;
     let recentTasks = [];
+
+    const currentDate = new Date();
 
     if (isAdmin) {
       totalProjects = await Project.countDocuments();
@@ -21,6 +24,10 @@ export const getDashboardMetrics = async (req, res) => {
       pendingTasks = await Task.countDocuments({ status: 'Pending' });
       inProgressTasks = await Task.countDocuments({ status: 'In Progress' });
       completedTasks = await Task.countDocuments({ status: 'Completed' });
+      overdueTasks = await Task.countDocuments({
+        dueDate: { $lt: currentDate },
+        status: { $ne: 'Completed' }
+      });
 
       recentTasks = await Task.find()
         .sort({ createdAt: -1 })
@@ -33,6 +40,11 @@ export const getDashboardMetrics = async (req, res) => {
       pendingTasks = await Task.countDocuments({ assignedTo: userId, status: 'Pending' });
       inProgressTasks = await Task.countDocuments({ assignedTo: userId, status: 'In Progress' });
       completedTasks = await Task.countDocuments({ assignedTo: userId, status: 'Completed' });
+      overdueTasks = await Task.countDocuments({
+        assignedTo: userId,
+        dueDate: { $lt: currentDate },
+        status: { $ne: 'Completed' }
+      });
 
       recentTasks = await Task.find({ assignedTo: userId })
         .sort({ createdAt: -1 })
@@ -50,6 +62,7 @@ export const getDashboardMetrics = async (req, res) => {
         pending: pendingTasks,
         inProgress: inProgressTasks,
         completed: completedTasks,
+        overdue: overdueTasks,
       },
       recentTasks,
     });
