@@ -10,11 +10,16 @@ import {
 } from '../controllers/projectController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
+import { getTasksByProject } from '../controllers/taskController.js';
+
 const router = express.Router();
 
 router.route('/')
   .get(protect, getProjects)
   .post(protect, admin, createProject);
+
+router.route('/:projectId/tasks')
+  .get(protect, getTasksByProject);
 
 router.route('/:id')
   .get(protect, getProjectById)
