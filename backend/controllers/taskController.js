@@ -29,6 +29,12 @@ export const createTask = async (req, res) => {
       dueDate,
       project,
       assignedTo,
+      activityLog: [
+        {
+          action: 'Task Created',
+          user: req.user._id,
+        }
+      ]
     });
 
     res.status(201).json(task);
@@ -48,11 +54,15 @@ export const getTasks = async (req, res) => {
     if (req.user.role === 'Admin') {
       tasks = await Task.find()
         .populate('project', 'name')
-        .populate('assignedTo', 'name email');
+        .populate('assignedTo', 'name email')
+        .populate('comments.user', 'name email')
+        .populate('activityLog.user', 'name email');
     } else {
       tasks = await Task.find({ assignedTo: req.user._id })
         .populate('project', 'name')
-        .populate('assignedTo', 'name email');
+        .populate('assignedTo', 'name email')
+        .populate('comments.user', 'name email')
+        .populate('activityLog.user', 'name email');
     }
 
     res.json(tasks);
@@ -82,11 +92,15 @@ export const getTasksByProject = async (req, res) => {
     if (req.user.role === 'Admin') {
       tasks = await Task.find({ project: projectId })
         .populate('assignedTo', 'name email')
-        .populate('project', 'name');
+        .populate('project', 'name')
+        .populate('comments.user', 'name email')
+        .populate('activityLog.user', 'name email');
     } else {
       tasks = await Task.find({ project: projectId, assignedTo: req.user._id })
         .populate('assignedTo', 'name email')
-        .populate('project', 'name');
+        .populate('project', 'name')
+        .populate('comments.user', 'name email')
+        .populate('activityLog.user', 'name email');
     }
 
     res.json(tasks);
@@ -114,12 +128,21 @@ export const updateTask = async (req, res) => {
 
       // If they are a member, they can only update the status
       const { status } = req.body;
-      if (status) {
+      if (status && status !== task.status) {
+        const fromStatus = task.status;
         task.status = status;
+        task.activityLog.push({
+          action: 'Status Changed',
+          user: req.user._id,
+          fromStatus,
+          toStatus: status
+        });
         await task.save();
         const updatedTask = await Task.findById(req.params.id)
           .populate('assignedTo', 'name email')
-          .populate('project', 'name');
+          .populate('project', 'name')
+          .populate('comments.user', 'name email')
+          .populate('activityLog.user', 'name email');
         return res.json(updatedTask);
       }
       return res.status(400).json({ message: 'Members can only update task status' });
@@ -134,11 +157,37 @@ export const updateTask = async (req, res) => {
       }
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    ).populate('assignedTo', 'name email').populate('project', 'name');
+    // Track activity changes
+    if (req.body.status && req.body.status !== task.status) {
+      task.activityLog.push({
+        action: 'Status Changed',
+        user: req.user._id,
+        fromStatus: task.status,
+        toStatus: req.body.status
+      });
+    }
+
+    if (req.body.assignedTo && req.body.assignedTo !== task.assignedTo.toString()) {
+      task.activityLog.push({
+        action: 'Reassigned',
+        user: req.user._id
+      });
+    }
+
+    // Update fields except activityLog (since we pushed to it)
+    if (req.body.title) task.title = req.body.title;
+    if (req.body.description) task.description = req.body.description;
+    if (req.body.dueDate) task.dueDate = req.body.dueDate;
+    if (req.body.status) task.status = req.body.status;
+    if (req.body.assignedTo) task.assignedTo = req.body.assignedTo;
+
+    await task.save();
+
+    const updatedTask = await Task.findById(req.params.id)
+      .populate('assignedTo', 'name email')
+      .populate('project', 'name')
+      .populate('comments.user', 'name email')
+      .populate('activityLog.user', 'name email');
 
     res.json(updatedTask);
   } catch (error) {
@@ -159,6 +208,50 @@ export const deleteTask = async (req, res) => {
 
     await task.deleteOne();
     res.json({ message: 'Task removed' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Add a comment to task
+// @route   POST /api/tasks/:id/comments
+// @access  Private
+export const addComment = async (req, res) => {
+  try {
+    const { text } = req.body;
+    const task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    if (req.user.role !== 'Admin' && task.assignedTo.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to comment on this task' });
+    }
+
+    if (!text) {
+      return res.status(400).json({ message: 'Please add a comment text' });
+    }
+
+    task.comments.push({
+      user: req.user._id,
+      text,
+    });
+
+    task.activityLog.push({
+      action: 'Comment Added',
+      user: req.user._id,
+    });
+
+    await task.save();
+
+    const updatedTask = await Task.findById(req.params.id)
+      .populate('assignedTo', 'name email')
+      .populate('project', 'name')
+      .populate('comments.user', 'name email')
+      .populate('activityLog.user', 'name email');
+
+    res.status(201).json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

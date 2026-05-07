@@ -25,10 +25,16 @@ const deleteTask = async (id) => {
   return data;
 };
 
+const addTaskComment = async (id, text) => {
+  const { data } = await api.post(`/tasks/${id}/comments`, { text });
+  return data;
+};
+
 export const taskService = {
   getTasks,
   getTasksByProject,
   createTask,
   updateTask,
   deleteTask,
+  addTaskComment,
 };

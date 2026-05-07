@@ -4,6 +4,7 @@ import {
   getTasks,
   updateTask,
   deleteTask,
+  addComment,
 } from '../controllers/taskController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -16,5 +17,8 @@ router.route('/')
 router.route('/:id')
   .put(protect, updateTask)
   .delete(protect, admin, deleteTask);
+
+router.route('/:id/comments')
+  .post(protect, addComment);
 
 export default router;
