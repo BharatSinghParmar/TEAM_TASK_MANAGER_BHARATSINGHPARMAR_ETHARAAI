@@ -31,14 +31,23 @@ app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// Serve uploads directory
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
-  const __dirname = path.resolve();
-  app.use(express.static(path.join(__dirname, 'frontend/dist')));
+  // We use ../frontend/dist because process.cwd() is the backend folder when running via npm start --prefix backend
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-  app.get(/.*/, (req, res) =>
-    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'))
-  );
+  app.get(/.*/, (req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return res.status(404).json({ message: 'API Route Not Found' });
+    }
+    res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
+  });
 } else {
   app.get('/', (req, res) => {
     res.send('Team Task Manager API is running...');

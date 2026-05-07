@@ -8,6 +8,7 @@ import ProjectModal from '../components/ProjectModal';
 import ManageMembersModal from '../components/ManageMembersModal';
 import TaskCard from '../components/TaskCard';
 import TaskModal from '../components/TaskModal';
+import ConfirmModal from '../components/ConfirmModal';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -24,6 +25,16 @@ const ProjectDetails = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   
   const [editingTask, setEditingTask] = useState(null);
+
+  // Confirmation Modal States
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+  });
+
+  const closeConfirmModal = () => setConfirmModal({ ...confirmModal, isOpen: false });
 
   useEffect(() => {
     fetchProjectAndTasks();
@@ -56,16 +67,23 @@ const ProjectDetails = () => {
     }
   };
 
-  const handleDeleteProject = async () => {
-    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-      try {
-        await projectService.deleteProject(id);
-        toast.success('Project deleted successfully');
-        navigate('/projects');
-      } catch (error) {
-        toast.error(error.response?.data?.message || 'Failed to delete project');
+  const handleDeleteProject = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Project',
+      message: 'Are you sure you want to delete this project? This action cannot be undone and will delete all associated tasks.',
+      onConfirm: async () => {
+        try {
+          await projectService.deleteProject(id);
+          toast.success('Project deleted successfully');
+          navigate('/projects');
+        } catch (error) {
+          toast.error(error.response?.data?.message || 'Failed to delete project');
+        } finally {
+          closeConfirmModal();
+        }
       }
-    }
+    });
   };
 
   const handleAddMember = async (userId) => {
@@ -132,16 +150,23 @@ const ProjectDetails = () => {
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
-    if (window.confirm('Are you sure you want to delete this task?')) {
-      try {
-        await taskService.deleteTask(taskId);
-        setTasks(tasks.filter(t => t._id !== taskId));
-        toast.success('Task deleted successfully');
-      } catch (error) {
-        toast.error(error.response?.data?.message || 'Failed to delete task');
+  const handleDeleteTask = (taskId) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Task',
+      message: 'Are you sure you want to delete this task?',
+      onConfirm: async () => {
+        try {
+          await taskService.deleteTask(taskId);
+          setTasks(tasks.filter(t => t._id !== taskId));
+          toast.success('Task deleted successfully');
+        } catch (error) {
+          toast.error(error.response?.data?.message || 'Failed to delete task');
+        } finally {
+          closeConfirmModal();
+        }
       }
-    }
+    });
   };
 
   if (loading) {
@@ -316,6 +341,16 @@ const ProjectDetails = () => {
           projectMembers={project.members || []}
         />
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={closeConfirmModal}
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 };

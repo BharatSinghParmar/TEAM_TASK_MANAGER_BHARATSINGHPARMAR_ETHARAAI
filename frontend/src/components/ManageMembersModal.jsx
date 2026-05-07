@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { userService } from '../services/userService';
+import ConfirmModal from './ConfirmModal';
 
 const ManageMembersModal = ({ isOpen, onClose, projectMembers, onAddMember, onRemoveMember }) => {
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    member: null,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -66,7 +71,7 @@ const ManageMembersModal = ({ isOpen, onClose, projectMembers, onAddMember, onRe
                           <p className="text-xs text-gray-500">{member.email}</p>
                         </div>
                         <button
-                          onClick={() => onRemoveMember(member._id)}
+                          onClick={() => setConfirmModal({ isOpen: true, member })}
                           className="text-sm text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded transition"
                         >
                           Remove
@@ -120,6 +125,19 @@ const ManageMembersModal = ({ isOpen, onClose, projectMembers, onAddMember, onRe
           </button>
         </div>
       </div>
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title="Remove Member"
+        message={`Are you sure you want to remove ${confirmModal.member?.name} from this project?`}
+        onConfirm={() => {
+          onRemoveMember(confirmModal.member._id);
+          setConfirmModal({ isOpen: false, member: null });
+        }}
+        onCancel={() => setConfirmModal({ isOpen: false, member: null })}
+        confirmText="Remove"
+        type="danger"
+      />
     </div>
   );
 };

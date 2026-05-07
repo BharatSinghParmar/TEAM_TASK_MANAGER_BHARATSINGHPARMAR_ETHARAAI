@@ -7,6 +7,7 @@ import {
   addComment,
 } from '../controllers/taskController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -19,6 +20,6 @@ router.route('/:id')
   .delete(protect, admin, deleteTask);
 
 router.route('/:id/comments')
-  .post(protect, addComment);
+  .post(protect, upload.single('attachment'), addComment);
 
 export default router;

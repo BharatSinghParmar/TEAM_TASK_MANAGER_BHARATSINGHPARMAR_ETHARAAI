@@ -137,13 +137,21 @@ export const updateTask = async (req, res) => {
           .populate('comments.user', 'name email')
           .populate('activityLog.user', 'name email');
         return res.json(updatedTask);
+      } else if (status === task.status) {
+        // Status didn't change, just return ok to prevent 400 error when clicking save
+        const existingTask = await Task.findById(req.params.id)
+          .populate('assignedTo', 'name email')
+          .populate('project', 'name')
+          .populate('comments.user', 'name email')
+          .populate('activityLog.user', 'name email');
+        return res.json(existingTask);
       }
       return res.status(400).json({ message: 'Members can only update task status' });
     }
 
     // Admin can update anything
     // Check if assignedTo changed, verify member
-    if (req.body.assignedTo && req.body.assignedTo !== task.assignedTo.toString()) {
+    if (req.body.assignedTo && req.body.assignedTo !== task.assignedTo?.toString()) {
       const project = await Project.findById(task.project);
       if (!project.members.includes(req.body.assignedTo)) {
         return res.status(400).json({ message: 'Assignee must be a member of the project' });
@@ -160,7 +168,7 @@ export const updateTask = async (req, res) => {
       });
     }
 
-    if (req.body.assignedTo && req.body.assignedTo !== task.assignedTo.toString()) {
+    if (req.body.assignedTo && req.body.assignedTo !== task.assignedTo?.toString()) {
       task.activityLog.push({
         action: 'Reassigned',
         user: req.user._id
@@ -222,14 +230,25 @@ export const addComment = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to comment on this task' });
     }
 
-    if (!text) {
-      return res.status(400).json({ message: 'Please add a comment text' });
+    if (!text && !req.file) {
+      return res.status(400).json({ message: 'Please add a comment text or an attachment' });
     }
 
-    task.comments.push({
+    const newComment = {
       user: req.user._id,
-      text,
-    });
+      text: text || '',
+    };
+
+    if (req.file) {
+      newComment.attachment = {
+        filename: req.file.originalname,
+        path: `/uploads/comments/${req.file.filename}`,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+      };
+    }
+
+    task.comments.push(newComment);
 
     task.activityLog.push({
       action: 'Comment Added',

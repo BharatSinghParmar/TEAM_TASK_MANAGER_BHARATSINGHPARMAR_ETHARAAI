@@ -25,8 +25,13 @@ const deleteTask = async (id) => {
   return data;
 };
 
-const addTaskComment = async (id, text) => {
-  const { data } = await api.post(`/tasks/${id}/comments`, { text });
+const addTaskComment = async (id, formData) => {
+  const isFormData = formData instanceof FormData;
+  const config = {
+    headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {}
+  };
+  const payload = isFormData ? formData : { text: formData };
+  const { data } = await api.post(`/tasks/${id}/comments`, payload, config);
   return data;
 };
 

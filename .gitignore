@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build output
+frontend/dist/
+
+# Environment files (never commit secrets)
+backend/.env
+.env
+
+# Uploads (ephemeral local storage)
+backend/uploads/
+
+# Planning / tooling folders (not part of the submission)
+.planning/
+e2e/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
