@@ -12,5 +12,8 @@
     "dev": "npm run dev --prefix backend"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.0.0"
+  }
 }
