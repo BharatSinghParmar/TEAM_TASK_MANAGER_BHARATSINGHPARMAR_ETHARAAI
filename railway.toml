@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend"
+buildCommand = "npm install --prefix frontend --include=dev && npm run build --prefix frontend && npm install --prefix backend"
 
 [deploy]
 startCommand = "NODE_ENV=production node backend/server.js"
