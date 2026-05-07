@@ -17,7 +17,7 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login(email, password);
+      await login(email, password, role);
       toast.success('Logged in successfully!');
       navigate('/');
     } catch (error) {

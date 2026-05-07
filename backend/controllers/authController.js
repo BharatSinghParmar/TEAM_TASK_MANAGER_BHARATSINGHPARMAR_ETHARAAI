@@ -50,10 +50,10 @@ export const signup = async (req, res) => {
 // @access  Public
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     // Validate inputs
-    if (!email || !password) {
+    if (!email || !password || !role) {
       return res.status(400).json({ message: 'Please add all required fields' });
     }
 
@@ -61,6 +61,13 @@ export const login = async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
+      // Check if role matches
+      if (user.role !== role) {
+        return res.status(401).json({ 
+          message: `This account is registered as a ${user.role}. Please select the correct role.` 
+        });
+      }
+
       res.json({
         _id: user.id,
         name: user.name,
