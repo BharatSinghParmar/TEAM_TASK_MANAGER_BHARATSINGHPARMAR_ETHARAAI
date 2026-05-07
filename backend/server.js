@@ -48,8 +48,8 @@ if (process.env.NODE_ENV === 'production') {
   // Serve static assets (JS, CSS, images)
   app.use(express.static(distPath));
 
-  // All non-API routes serve the React SPA
-  app.get('*', (req, res) => {
+  // All non-API routes serve the React SPA (Express 5 wildcard syntax)
+  app.get('/{*path}', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
