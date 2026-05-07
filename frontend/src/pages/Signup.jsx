@@ -17,9 +17,9 @@ const Signup = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signup(name, email, password, role);
-      toast.success('Account created successfully!');
-      navigate('/');
+      const data = await signup(name, email, password, role);
+      toast.success(data.message || 'Account created successfully! Please login.');
+      navigate('/login');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Signup failed');
     } finally {
