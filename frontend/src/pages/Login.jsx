@@ -6,13 +6,11 @@ import toast from 'react-hot-toast';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState('login'); // 'login' or 'otp'
   const [role, setRole] = useState('Member');
   const [isLoading, setIsLoading] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   
-  const { login, verifyOtp } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLoginSubmit = async (e) => {
@@ -154,8 +152,6 @@ const Login = () => {
             Create one now
           </Link>
         </p>
-      </div>
-    </div>
       </div>
     </div>
   );
