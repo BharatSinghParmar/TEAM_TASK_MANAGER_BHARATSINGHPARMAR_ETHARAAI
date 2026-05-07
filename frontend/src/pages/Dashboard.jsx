@@ -29,12 +29,9 @@ const Dashboard = () => {
 
   const handleTaskStatusChange = async (taskId, newStatus) => {
     try {
-      const updatedTask = await taskService.updateTask(taskId, { status: newStatus });
-      // Update local state for recent tasks
-      setMetrics((prev) => ({
-        ...prev,
-        recentTasks: prev.recentTasks.map(t => t._id === taskId ? updatedTask : t)
-      }));
+      await taskService.updateTask(taskId, { status: newStatus });
+      // Fetch metrics again to recalculate top-level counts
+      await fetchMetrics();
       toast.success('Task status updated');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update task status');
@@ -92,10 +89,7 @@ const Dashboard = () => {
                 key={task._id} 
                 task={task} 
                 onStatusChange={handleTaskStatusChange}
-                // For Dashboard view, we might not allow edit/delete to keep it simple, or we can just pass empty functions
-                // since Admins will usually edit tasks from the Project details view where the project members are available
-                onEdit={() => toast.info('Please edit tasks from the Project Details page')}
-                onDelete={() => toast.info('Please delete tasks from the Project Details page')}
+                hideActions={true}
               />
             ))}
           </div>

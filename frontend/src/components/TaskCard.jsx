@@ -1,14 +1,12 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const TaskCard = ({ task, onStatusChange, onEdit, onDelete }) => {
+const TaskCard = ({ task, onStatusChange, onEdit, onDelete, hideActions = false }) => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'Admin';
   
   // Members can only edit their own tasks' status
-  const isAssignee = typeof task.assignedTo === 'object' 
-    ? task.assignedTo._id === user._id 
-    : task.assignedTo === user._id;
+  const isAssignee = String(task.assignedTo?._id || task.assignedTo) === String(user?._id);
   
   const canChangeStatus = isAdmin || isAssignee;
 
@@ -32,7 +30,7 @@ const TaskCard = ({ task, onStatusChange, onEdit, onDelete }) => {
       )}
       <div className="flex justify-between items-start mb-3 mt-1">
         <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 pr-12">{task.title}</h3>
-        {isAdmin && (
+        {!hideActions && isAdmin && (
           <div className="flex gap-1 flex-shrink-0 ml-2">
             <button 
               onClick={() => onEdit(task)}

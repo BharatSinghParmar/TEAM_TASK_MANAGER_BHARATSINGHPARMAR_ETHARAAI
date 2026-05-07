@@ -307,13 +307,15 @@ const ProjectDetails = () => {
         onRemoveMember={handleRemoveMember}
       />
 
-      <TaskModal
-        isOpen={isTaskModalOpen}
-        onClose={() => setIsTaskModalOpen(false)}
-        onSubmit={handleTaskSubmit}
-        initialData={editingTask}
-        projectMembers={project.members || []}
-      />
+      {isTaskModalOpen && (
+        <TaskModal
+          isOpen={true}
+          onClose={() => setIsTaskModalOpen(false)}
+          onSubmit={handleTaskSubmit}
+          initialData={editingTask}
+          projectMembers={project.members || []}
+        />
+      )}
     </div>
   );
 };
