@@ -39,12 +39,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
-  // We use ../frontend/dist because process.cwd() is the backend folder when running via npm start --prefix backend
   app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-  app.get(/.*/, (req, res) => {
+  // Catch-all: send React app for any non-API route (Express 5 compatible)
+  app.use((req, res, next) => {
     if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
-      return res.status(404).json({ message: 'API Route Not Found' });
+      return next();
     }
     res.sendFile(path.resolve(__dirname, '../frontend/dist/index.html'));
   });
