@@ -1,16 +1,16 @@
-# 📋 Team Task Manager
+# Team Task Manager
 
 A production-ready, full-stack web application for managing projects, tasks, and team collaboration with **role-based access control (RBAC)**. Built with the MERN stack and deployed on Railway.
 
 ---
 
-## 🚀 Live Demo
+## Live Demo
 
-> **Deployed URL:** *(paste your Railway URL here after deployment)*
+> **Deployed URL:** *teamtaskmanagerbharatsinghparmaretharaai-production-b3ad.up.railway.app*
 
 ---
 
-## 🎯 Assignment Requirements — Completion Checklist
+## Assignment Requirements — Completion Checklist
 
 | Requirement | Status |
 |---|---|
@@ -26,15 +26,15 @@ A production-ready, full-stack web application for managing projects, tasks, and
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🔐 Authentication
+###  Authentication
 - Secure Signup & Login with **OTP email verification**
 - JWT-based session management (30-day expiry)
 - bcrypt password hashing
 - Protected routes on both frontend and backend
 
-### 👥 Role-Based Access Control (RBAC)
+### Role-Based Access Control (RBAC)
 | Capability | Admin | Member |
 |---|---|---|
 | Create / Delete Projects | ✅ | ❌ |
@@ -44,25 +44,25 @@ A production-ready, full-stack web application for managing projects, tasks, and
 | Post comments & attachments | ✅ | ✅ |
 | View Dashboard analytics | ✅ | ✅ |
 
-### 📂 Project & Task Management
+### Project & Task Management
 - Create and manage projects with team members
 - Assign tasks to specific team members
 - Task status tracking: **Pending → In Progress → Completed**
 - Overdue detection with visual indicators
 
-### 💬 Collaboration
+### Collaboration
 - Comment system with file attachments (images, PDFs up to 5MB)
 - Activity log / audit trail on every task (status changes, reassignments)
 - Relative timestamps using `date-fns`
 
-### 📊 Dashboard Analytics
+### Dashboard Analytics
 - Total projects, tasks by status, overdue count
 - Recent tasks overview
 - Role-specific dynamic greetings
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -75,7 +75,7 @@ A production-ready, full-stack web application for managing projects, tasks, and
 
 ---
 
-## 🗂 Folder Structure
+## Folder Structure
 
 ```
 team-task-manager/
@@ -98,7 +98,7 @@ team-task-manager/
 
 ---
 
-## 🔐 Demo Credentials
+## Demo Credentials
 
 > OTP for all accounts in demo mode: **`123456`**
 
@@ -117,7 +117,7 @@ team-task-manager/
 
 ---
 
-## ⚙️ Local Setup
+## Local Setup
 
 ### Prerequisites
 - Node.js 18+
@@ -152,7 +152,7 @@ Visit `http://localhost:8000`
 
 ---
 
-## 🚂 Railway Deployment
+## Railway Deployment
 
 1. Push this repo to GitHub.
 2. Create a new Railway project and connect the GitHub repo.
@@ -170,7 +170,7 @@ Visit `http://localhost:8000`
 
 ---
 
-## 📡 API Overview
+## API Overview
 
 | Method | Route | Access |
 |---|---|---|
@@ -188,7 +188,7 @@ All protected routes require `Authorization: Bearer <token>` header.
 
 ---
 
-## 🛡 Security
+## Security
 
 - Passwords hashed with **bcryptjs** (salt rounds: 10)
 - JWT tokens expire after **30 days**
