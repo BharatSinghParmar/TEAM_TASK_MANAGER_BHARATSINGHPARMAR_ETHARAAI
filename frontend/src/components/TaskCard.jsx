@@ -29,7 +29,12 @@ const TaskCard = ({ task, onStatusChange, onEdit, onDelete, hideActions = false 
         </div>
       )}
       <div className="flex justify-between items-start mb-3 mt-1">
-        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2 pr-12">{task.title}</h3>
+        <h3 
+          className="text-lg font-semibold text-gray-900 line-clamp-2 pr-12 hover:text-blue-600 hover:underline cursor-pointer transition-colors"
+          onClick={() => onEdit && onEdit(task)}
+        >
+          {task.title}
+        </h3>
         {!hideActions && isAdmin && (
           <div className="flex gap-1 flex-shrink-0 ml-2">
             <button 

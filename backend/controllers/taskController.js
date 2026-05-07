@@ -89,19 +89,12 @@ export const getTasksByProject = async (req, res) => {
     }
 
     let tasks;
-    if (req.user.role === 'Admin') {
-      tasks = await Task.find({ project: projectId })
-        .populate('assignedTo', 'name email')
-        .populate('project', 'name')
-        .populate('comments.user', 'name email')
-        .populate('activityLog.user', 'name email');
-    } else {
-      tasks = await Task.find({ project: projectId, assignedTo: req.user._id })
-        .populate('assignedTo', 'name email')
-        .populate('project', 'name')
-        .populate('comments.user', 'name email')
-        .populate('activityLog.user', 'name email');
-    }
+    // Admins and members can both see all tasks in the project they have access to
+    tasks = await Task.find({ project: projectId })
+      .populate('assignedTo', 'name email')
+      .populate('project', 'name')
+      .populate('comments.user', 'name email')
+      .populate('activityLog.user', 'name email');
 
     res.json(tasks);
   } catch (error) {

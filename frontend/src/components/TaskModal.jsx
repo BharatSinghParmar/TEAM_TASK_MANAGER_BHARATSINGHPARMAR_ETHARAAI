@@ -5,6 +5,11 @@ import { useAuth } from '../context/AuthContext';
 
 const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) => {
   const { user } = useAuth();
+  
+  const isAdmin = user?.role === 'Admin';
+  const isAssignee = initialData ? String(initialData.assignedTo?._id || initialData.assignedTo) === String(user?._id) : true;
+  const isReadOnly = initialData && !isAdmin && !isAssignee;
+
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [status, setStatus] = useState(initialData?.status || 'Pending');
@@ -106,8 +111,9 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                   placeholder="e.g. Design Login Page"
+                  disabled={isReadOnly}
                 />
               </div>
               
@@ -119,8 +125,9 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-24 disabled:bg-gray-100 disabled:text-gray-500"
                   placeholder="Detailed task description..."
+                  disabled={isReadOnly}
                 />
               </div>
 
@@ -133,7 +140,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                     id="status"
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-500"
+                    disabled={isReadOnly}
                   >
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
@@ -150,7 +158,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                    disabled={isReadOnly}
                   />
                 </div>
               </div>
@@ -163,7 +172,8 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                   id="assignedTo"
                   value={assignedTo}
                   onChange={(e) => setAssignedTo(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-500"
+                  disabled={isReadOnly}
                 >
                   <option value="" disabled>Select a team member</option>
                   {projectMembers?.map((member) => (
@@ -172,7 +182,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                     </option>
                   ))}
                 </select>
-                {projectMembers?.length === 0 && (
+                {!isReadOnly && projectMembers?.length === 0 && (
                   <p className="text-xs text-red-500 mt-1">
                     Add members to the project first before creating tasks.
                   </p>
@@ -241,25 +251,27 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
                 })()}
               </div>
               
-              <form onSubmit={handleAddComment} className="flex-shrink-0 border-t border-gray-200 pt-4 mt-auto">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Write a comment..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
-                    disabled={commentLoading}
-                  />
-                  <button
-                    type="submit"
-                    disabled={commentLoading || !commentText.trim()}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none disabled:opacity-50 text-sm font-medium transition shadow-sm"
-                  >
-                    Post
-                  </button>
-                </div>
-              </form>
+              {!isReadOnly && (
+                <form onSubmit={handleAddComment} className="flex-shrink-0 border-t border-gray-200 pt-4 mt-auto">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Write a comment..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                      disabled={commentLoading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={commentLoading || !commentText.trim()}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 focus:outline-none disabled:opacity-50 text-sm font-medium transition shadow-sm"
+                    >
+                      Post
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
         </div>
@@ -270,16 +282,18 @@ const TaskModal = ({ isOpen, onClose, onSubmit, initialData, projectMembers }) =
             onClick={onClose}
             className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none font-medium transition"
           >
-            Cancel
+            {isReadOnly ? 'Close' : 'Cancel'}
           </button>
-          <button
-            type="submit"
-            form="task-form"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none disabled:opacity-50 font-medium transition shadow-sm"
-          >
-            {loading ? 'Saving...' : initialData ? 'Save Changes' : 'Create Task'}
-          </button>
+          {!isReadOnly && (
+            <button
+              type="submit"
+              form="task-form"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none disabled:opacity-50 font-medium transition shadow-sm"
+            >
+              {loading ? 'Saving...' : initialData ? 'Save Changes' : 'Create Task'}
+            </button>
+          )}
         </div>
       </div>
     </div>
