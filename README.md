@@ -28,8 +28,8 @@ A production-ready, full-stack web application for managing projects, tasks, and
 
 ## Key Features
 
-###  Authentication
-- Secure Signup & Login with **OTP email verification**
+### 🔐 Authentication
+- Secure Signup & Login with **Direct Role Enforcement**
 - JWT-based session management (30-day expiry)
 - bcrypt password hashing
 - Protected routes on both frontend and backend
@@ -69,7 +69,7 @@ A production-ready, full-stack web application for managing projects, tasks, and
 | Frontend | React 19, Vite, React Router v7, Tailwind CSS v4 |
 | Backend | Node.js, Express.js 5 |
 | Database | MongoDB Atlas (Mongoose ODM) |
-| Authentication | JWT, bcryptjs, Nodemailer OTP |
+| Authentication | JWT, bcryptjs |
 | File Uploads | Multer |
 | Deployment | Railway |
 
@@ -100,7 +100,7 @@ team-task-manager/
 
 ## Demo Credentials
 
-> OTP for all accounts in demo mode: **`123456`**
+> Direct login with role verification enabled.
 
 ### Admin
 - **Email:** `admin@taskmanager.com`
@@ -136,10 +136,7 @@ PORT=8000
 NODE_ENV=development
 MONGO_URI=your_mongodb_atlas_uri
 JWT_SECRET=your_jwt_secret
-EMAIL_USER=your_gmail@gmail.com   # Optional — OTP email
-EMAIL_PASS=your_gmail_app_password # Optional — OTP email
 ```
-> If `EMAIL_USER` / `EMAIL_PASS` are not set, OTP defaults to `123456` for demo purposes.
 
 ### 3. Install & run
 ```bash
@@ -162,8 +159,6 @@ Visit `http://localhost:8000`
 |---|---|
 | `MONGO_URI` | Your MongoDB Atlas connection string |
 | `JWT_SECRET` | A secure random string |
-| `EMAIL_USER` | Gmail address (optional) |
-| `EMAIL_PASS` | Gmail App Password (optional) |
 | `NODE_ENV` | `production` |
 
 4. Railway auto-detects `npm start` from the root `package.json`. The Express server serves the pre-built React frontend as static files.
@@ -174,9 +169,8 @@ Visit `http://localhost:8000`
 
 | Method | Route | Access |
 |---|---|---|
-| POST | `/api/auth/register` | Public |
+| POST | `/api/auth/signup` | Public |
 | POST | `/api/auth/login` | Public |
-| POST | `/api/auth/verify-otp` | Public |
 | GET / POST | `/api/projects` | Protected |
 | GET / PUT / DELETE | `/api/projects/:id` | Protected |
 | GET / POST | `/api/tasks` | Protected |
